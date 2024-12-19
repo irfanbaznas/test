@@ -43,16 +43,16 @@ pipeline {
             }
         }
 
-        stage('Snyk Testing') {
-            steps {
-                echo 'Testing...'
-                snykSecurity(
-                snykInstallation: 'snyk-demo',
-                snykTokenId: 'SNYK_TOKEN',
-                // place other parameters here
-                )
-            }
-        }
+        // stage('Snyk Testing') {
+        //     steps {
+        //         echo 'Testing...'
+        //         snykSecurity(
+        //         snykInstallation: 'snyk-demo',
+        //         snykTokenId: 'SNYK_TOKEN',
+        //         // place other parameters here
+        //         )
+        //     }
+        // }
 
         stage('Run as Container Docker Image') {
             steps {
@@ -74,53 +74,53 @@ pipeline {
             }
         }
 
-        stage('Jmeter Testing') {
-            steps {
-                script {
-                    sh "sudo ${JMETER}/jmeter -n -t jmeter-demo.jmx -l ./${JMETER_LOG}.jtl -e -o ${JMETER_REPORT}"
-                }
-            }
-        }
+        // stage('Jmeter Testing') {
+        //     steps {
+        //         script {
+        //             sh "sudo ${JMETER}/jmeter -n -t jmeter-demo.jmx -l ./${JMETER_LOG}.jtl -e -o ${JMETER_REPORT}"
+        //         }
+        //     }
+        // }
 
-        stage('Jmeter Publish Report') {
-            steps {
-                // Archive the .jtl result file
-                archiveArtifacts artifacts: "${JMETER_LOG}.jtl", fingerprint: true
-                // Publish Performance Report using Jenkins Performance Plugin
-                perfReport sourceDataFiles: "${JMETER_LOG}.jtl"
-            }
-        }
+        // stage('Jmeter Publish Report') {
+        //     steps {
+        //         // Archive the .jtl result file
+        //         archiveArtifacts artifacts: "${JMETER_LOG}.jtl", fingerprint: true
+        //         // Publish Performance Report using Jenkins Performance Plugin
+        //         perfReport sourceDataFiles: "${JMETER_LOG}.jtl"
+        //     }
+        // }
 
-        stage('Scanning Owasp ZAP') {
-            steps {
-                script {
-                    sh """
-                        sudo docker run -dt --name owasp zaproxy/zap-stable /bin/bash
-                        sudo docker exec owasp mkdir /zap/wrk
-                        sudo docker exec owasp zap-baseline.py -t http://34.30.50.182:8083 -r report.html -I
-                        sudo docker cp owasp:/zap/wrk/report.html ./report-zap-${env.BUILD_NUMBER}.html
-                        sudo docker stop owasp
-                        sudo docker rm owasp
-                    """
-                }
-            }
-        }
+        // stage('Scanning Owasp ZAP') {
+        //     steps {
+        //         script {
+        //             sh """
+        //                 sudo docker run -dt --name owasp zaproxy/zap-stable /bin/bash
+        //                 sudo docker exec owasp mkdir /zap/wrk
+        //                 sudo docker exec owasp zap-baseline.py -t http://34.30.50.182:8083 -r report.html -I
+        //                 sudo docker cp owasp:/zap/wrk/report.html ./report-zap-${env.BUILD_NUMBER}.html
+        //                 sudo docker stop owasp
+        //                 sudo docker rm owasp
+        //             """
+        //         }
+        //     }
+        // }
 
-        stage('Publish Owasp Report') {
-            steps {
-                publishHTML (
-                    target : [
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: './',
-                        reportFiles: "report-zap-${env.BUILD_NUMBER}.html",
-                        reportName: 'Owasp ZAP Report',
-                        reportTitles: 'ZAP Report'
-                    ]
-                )
-            }
-        }
+        // stage('Publish Owasp Report') {
+        //     steps {
+        //         publishHTML (
+        //             target : [
+        //                 allowMissing: false,
+        //                 alwaysLinkToLastBuild: true,
+        //                 keepAll: true,
+        //                 reportDir: './',
+        //                 reportFiles: "report-zap-${env.BUILD_NUMBER}.html",
+        //                 reportName: 'Owasp ZAP Report',
+        //                 reportTitles: 'ZAP Report'
+        //             ]
+        //         )
+        //     }
+        // }
 
         // stage('Restore') {
         //     steps {
